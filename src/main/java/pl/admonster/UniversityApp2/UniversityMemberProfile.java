@@ -12,16 +12,12 @@ abstract class UniversityMemberProfile {
     @GeneratedValue
     private Long id;
 
-    @Column(name="firstName")
     private String firstName;
 
-    @Column(name="lastName")
     private String lastName;
 
-    @Column(name="age")
     private int age;
 
-    @Column(name="email")
     private String email;
 
 }
