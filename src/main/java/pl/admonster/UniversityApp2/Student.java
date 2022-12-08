@@ -1,15 +1,16 @@
 package pl.admonster.UniversityApp2;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.NoArgsConstructor;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "students")
+@NoArgsConstructor
 public class Student extends UniversityMemberProfile{
-
-    public Student() {
-        super();
-    }
 
     public Student(String firstName, String lastName, int age, String email, String faculty) {
         super(firstName, lastName, age, email);
@@ -18,8 +19,8 @@ public class Student extends UniversityMemberProfile{
 
     private String faculty;
 
-    //@ManyToMany(mappedBy="assignedStudents")
-    //Set<Teacher> supervisorTeachers;
+    @ManyToMany(mappedBy="assignedStudents")
+    Set<Teacher> supervisorTeachers;
 
 
     public String getFaculty() {
