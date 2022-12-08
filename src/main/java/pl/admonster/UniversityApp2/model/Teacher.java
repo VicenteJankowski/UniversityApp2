@@ -1,4 +1,4 @@
-package pl.admonster.UniversityApp2;
+package pl.admonster.UniversityApp2.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name="teachers")
 @NoArgsConstructor
-public class Teacher extends UniversityMemberProfile{
+public class Teacher extends UniversityMember {
 
     public Teacher(String firstName, String lastName, int age, String email, String course) {
         super(firstName, lastName, age, email);

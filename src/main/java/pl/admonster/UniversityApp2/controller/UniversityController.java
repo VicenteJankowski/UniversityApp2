@@ -1,9 +1,13 @@
-package pl.admonster.UniversityApp2;
+package pl.admonster.UniversityApp2.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.admonster.UniversityApp2.model.Student;
+import pl.admonster.UniversityApp2.repository.StudentRepository;
+import pl.admonster.UniversityApp2.model.Teacher;
+import pl.admonster.UniversityApp2.repository.TeacherRepository;
 
 import java.util.List;
 
@@ -39,9 +43,9 @@ public class UniversityController {
 
     @PostMapping("/student")
     public ResponseEntity<Student> createStudent(@RequestBody final Student student) {
-        List<Teacher> existingTeachers = teacherRepository.findAll();
+        List<Student> existingStudents = studentRepository.findAll();
 
-        if(existingTeachers.contains(student))
+        if(existingStudents.contains(student))
             return ResponseEntity.unprocessableEntity().build();
         studentRepository.save(student);
 

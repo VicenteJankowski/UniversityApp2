@@ -1,4 +1,4 @@
-package pl.admonster.UniversityApp2;
+package pl.admonster.UniversityApp2.model;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -11,9 +11,9 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-abstract class UniversityMemberProfile {
+abstract class UniversityMember {
 
-    public UniversityMemberProfile(String firstName, String lastName, int age, String email) {
+    public UniversityMember(String firstName, String lastName, int age, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
