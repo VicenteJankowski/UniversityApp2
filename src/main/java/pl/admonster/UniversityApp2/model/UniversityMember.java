@@ -6,6 +6,7 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
 
 import java.security.InvalidParameterException;
 import java.util.regex.Matcher;
@@ -34,6 +35,7 @@ abstract class UniversityMember {
 
     private int age;
 
+    @NaturalId
     private String email;
 
     public void setAge(int age) throws IllegalArgumentException{
@@ -62,9 +64,7 @@ abstract class UniversityMember {
 
         UniversityMember castedObj = (UniversityMember) obj;
 
-        return this.firstName.equals(castedObj.getFirstName())
-                && this.lastName.equals(castedObj.getLastName())
-                && this.email.equals(castedObj.getEmail());
+        return this.email.equals(castedObj.getEmail());
     }
 
     @Override
