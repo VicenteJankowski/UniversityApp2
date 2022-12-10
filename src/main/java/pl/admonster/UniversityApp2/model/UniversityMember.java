@@ -51,4 +51,20 @@ abstract class UniversityMember {
             throw new InvalidParameterException("wrong e-mail address");
         this.email = email;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj)
+            return true;
+
+        if(!(obj instanceof UniversityMember))
+            return false;
+
+        UniversityMember castedObj = (UniversityMember) obj;
+
+        return this.firstName.equals(castedObj.getFirstName())
+                && this.lastName.equals(castedObj.getLastName())
+                && this.email.equals(castedObj.getEmail());
+    }
+
 }

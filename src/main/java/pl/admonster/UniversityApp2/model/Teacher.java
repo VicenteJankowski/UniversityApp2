@@ -29,4 +29,5 @@ public class Teacher extends UniversityMember {
     public void setCourse(String course) {
         this.course = course;
     }
+
 }
