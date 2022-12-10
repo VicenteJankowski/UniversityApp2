@@ -10,6 +10,7 @@ import pl.admonster.UniversityApp2.model.Teacher;
 import pl.admonster.UniversityApp2.repository.TeacherRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UniversityController {
@@ -28,6 +29,14 @@ public class UniversityController {
     @GetMapping("/teachers")
     public List<Teacher> getAllTeachers(){
         return teacherRepository.findAll();
+    }
+
+    @GetMapping("/students")
+    public List<Student> getAllStudents() { return studentRepository.findAll(); }
+
+    @GetMapping("/student/{firstName}/{lastName}")
+    public Optional<Student> getStudentByFirstNameAndLastName(@PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName){
+        return studentRepository.getStudentByFirstNameAndLastName(firstName, lastName);
     }
 
     @PostMapping("/teacher")

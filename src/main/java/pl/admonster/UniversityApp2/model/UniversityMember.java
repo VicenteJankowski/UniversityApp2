@@ -38,6 +38,13 @@ abstract public class UniversityMember {
     @NaturalId
     private String email;
 
+    public void setFirstName(String firstName) throws InvalidParameterException{
+        if(firstName.length() < 3)
+            throw new InvalidParameterException("First name is too short");
+
+        this.firstName = firstName;
+    }
+
     public void setAge(int age) throws IllegalArgumentException{
         if(age <= 18)
             throw new IllegalArgumentException("age under 19");
