@@ -39,4 +39,5 @@ public class Student extends UniversityMember {
 
         return super.equals(obj);
     }
+
 }
