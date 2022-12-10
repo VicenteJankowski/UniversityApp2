@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @Setter
 @Getter
 @NoArgsConstructor
-abstract class UniversityMember {
+abstract public class UniversityMember {
 
     public UniversityMember(String firstName, String lastName, int age, String email) {
         this.firstName = firstName;
@@ -73,5 +73,14 @@ abstract class UniversityMember {
         result = 31 * result + firstName.hashCode();
         result = 31 * result + lastName.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return  "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'';
     }
 }

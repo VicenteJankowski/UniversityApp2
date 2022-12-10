@@ -22,7 +22,6 @@ public class Student extends UniversityMember {
     @ManyToMany(mappedBy="assignedStudents")
     Set<Teacher> supervisorTeachers;
 
-
     public String getFaculty() {
         return faculty;
     }
@@ -31,4 +30,12 @@ public class Student extends UniversityMember {
         this.faculty = faculty;
     }
 
+    @Override
+    public String toString() {
+        return "Student{ " +
+                super.toString() + '\'' +
+                "faculty='" + faculty + '\'' +
+                ", supervisorTeachers=" + supervisorTeachers +
+                '}';
+    }
 }

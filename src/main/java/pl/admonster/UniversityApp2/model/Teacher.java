@@ -30,4 +30,13 @@ public class Teacher extends UniversityMember {
         this.course = course;
     }
 
+    @Override
+    public String toString() {
+        return "Teacher{ " +
+                super.toString() + '\'' +
+                "course='" + course + '\'' +
+                ", assignedStudents=" + assignedStudents +
+                '}';
+    }
+
 }

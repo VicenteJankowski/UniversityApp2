@@ -52,6 +52,54 @@ public class UniversityController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @PutMapping("/teacher/{id}")
+    public ResponseEntity<Teacher> updateTeacher(@PathVariable("id") final Long id, @RequestBody final Teacher teacher){
+        Teacher updatedTeacher = teacherRepository.getReferenceById(id);
+
+        if(updatedTeacher == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        String updatedfirstName = teacher.getFirstName() == null ? updatedTeacher.getFirstName() : teacher.getFirstName();
+        String updatedLastName = teacher.getLastName() == null ? updatedTeacher.getLastName() : teacher.getLastName();
+        String updatedEmail = teacher.getEmail() == null ? updatedTeacher.getEmail() : teacher.getEmail();
+        int updatedAge = teacher.getAge() <= 0 ? updatedTeacher.getAge() : teacher.getAge();
+        String updatedCourse = teacher.getCourse() == null ? updatedTeacher.getCourse() : teacher.getCourse();
+
+        updatedTeacher.setFirstName(updatedfirstName);
+        updatedTeacher.setLastName(updatedLastName);
+        updatedTeacher.setEmail(updatedEmail);
+        updatedTeacher.setAge(updatedAge);
+        updatedTeacher.setCourse(updatedCourse);
+
+        teacherRepository.save(updatedTeacher);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/student/{id}")
+    public ResponseEntity<Student> updateStudent(@PathVariable("id") final Long id, @RequestBody final Student student){
+        Student updatedStudent = studentRepository.getReferenceById(id);
+
+        if(updatedStudent == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        String updatedfirstName = student.getFirstName() == null ? updatedStudent.getFirstName() : student.getFirstName();
+        String updatedLastName = student.getLastName() == null ? updatedStudent.getLastName() : student.getLastName();
+        String updatedEmail = student.getEmail() == null ? updatedStudent.getEmail() : student.getEmail();
+        int updatedAge = student.getAge() <= 0 ? updatedStudent.getAge() : student.getAge();
+        String updatedFaculty = student.getFaculty() == null ? updatedStudent.getFaculty() : student.getFaculty();
+
+        updatedStudent.setFirstName(updatedfirstName);
+        updatedStudent.setLastName(updatedLastName);
+        updatedStudent.setEmail(updatedEmail);
+        updatedStudent.setAge(updatedAge);
+        updatedStudent.setFaculty(updatedFaculty);
+
+        studentRepository.save(updatedStudent);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @DeleteMapping("/teacher/{id}")
     public ResponseEntity<HttpStatus> deleteTeacher(@PathVariable("id") final Long id){
         teacherRepository.deleteById(id);
