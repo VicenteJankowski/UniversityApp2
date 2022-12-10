@@ -67,4 +67,11 @@ abstract class UniversityMember {
                 && this.email.equals(castedObj.getEmail());
     }
 
+    @Override
+    public int hashCode() {
+        int result = email.hashCode();
+        result = 31 * result + firstName.hashCode();
+        result = 31 * result + lastName.hashCode();
+        return result;
+    }
 }

@@ -31,13 +31,4 @@ public class Student extends UniversityMember {
         this.faculty = faculty;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if(this == obj)
-            return true;
-
-        return super.equals(obj);
-    }
-
 }

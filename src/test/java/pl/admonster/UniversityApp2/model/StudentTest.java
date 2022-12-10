@@ -1,7 +1,9 @@
 package pl.admonster.UniversityApp2.model;
 
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,14 +32,39 @@ class StudentTest {
         assertEquals(firstStudent.equals(secondSameStudent), secondSameStudent.equals(thirdSameStudent));
     }
 
-    @RepeatedTest(10)
+    @Test
     public void equalsConsistentTest(){
-        assertEquals(firstStudent.equals(secondSameStudent), secondSameStudent.equals(firstStudent));
-        assertEquals(firstStudent.equals(firstDiffrentStudent), firstDiffrentStudent.equals(firstStudent));
+        Set<Boolean> resultOfEquals = new HashSet<>();
+
+        for (int i = 0; i < 100; i++)
+            resultOfEquals.add(firstStudent.equals(secondSameStudent));
+
+        assertEquals(1, resultOfEquals.size());
     }
 
     @Test
     public void equalsNullTest(){
         assertFalse(firstStudent.equals(null));
+    }
+
+    //hashCode contract tests
+    @Test
+    public void hashCodeConsistentTest(){
+        Set<Integer> resultHashCode = new HashSet<>();
+
+        for (int i = 0; i < 100; i++)
+            resultHashCode.add(firstStudent.hashCode());
+
+        assertEquals(1, resultHashCode.size());
+    }
+
+    @Test
+    public void hashCodeReflexiveTest(){
+        assertEquals(firstStudent.hashCode(), secondSameStudent.hashCode());
+    }
+
+    @Test
+    public void hashCodeDifferenceTest(){
+        assertNotEquals(firstStudent.hashCode(), firstDiffrentStudent.hashCode());
     }
 }
