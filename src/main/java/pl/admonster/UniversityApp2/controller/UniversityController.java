@@ -1,5 +1,7 @@
 package pl.admonster.UniversityApp2.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +12,6 @@ import pl.admonster.UniversityApp2.model.Teacher;
 import pl.admonster.UniversityApp2.repository.TeacherRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class UniversityController {
@@ -21,22 +22,40 @@ public class UniversityController {
     @Autowired
     StudentRepository studentRepository;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @GetMapping("/test")
     public String runTest(){
         return "Hello Vicente!";
     }
 
     @GetMapping("/teachers")
-    public List<Teacher> getAllTeachers(){
-        return teacherRepository.findAll();
+    public ResponseEntity getAllTeachers() throws JsonProcessingException {
+        return ResponseEntity.ok(objectMapper.writeValueAsString(teacherRepository.findAll()));
     }
 
     @GetMapping("/students")
-    public List<Student> getAllStudents() { return studentRepository.findAll(); }
+    public ResponseEntity getAllStudents() throws JsonProcessingException {
+        return ResponseEntity.ok(objectMapper.writeValueAsString(studentRepository.findAll()));
+    }
+
+    @GetMapping("/teacher/{firstName}/{lastName}")
+    public ResponseEntity getTeacherByFirstNameAndLastName(@PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName)
+            throws JsonProcessingException {
+        List<Teacher> foundTeacher = teacherRepository.getTeacherByFirstNameAndLastName(firstName, lastName);
+        if(foundTeacher.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(objectMapper.writeValueAsString(foundTeacher));
+    }
 
     @GetMapping("/student/{firstName}/{lastName}")
-    public Optional<Student> getStudentByFirstNameAndLastName(@PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName){
-        return studentRepository.getStudentByFirstNameAndLastName(firstName, lastName);
+    public ResponseEntity getStudentByFirstNameAndLastName(@PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName)
+            throws JsonProcessingException {
+        List<Student> foundStudent = studentRepository.getStudentByFirstNameAndLastName(firstName, lastName);
+        if(foundStudent.isEmpty())
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(objectMapper.writeValueAsString(foundStudent));
     }
 
     @PostMapping("/teacher")
@@ -65,9 +84,6 @@ public class UniversityController {
     public ResponseEntity<Teacher> updateTeacher(@PathVariable("id") final Long id, @RequestBody final Teacher teacher){
         Teacher updatedTeacher = teacherRepository.getReferenceById(id);
 
-        if(updatedTeacher == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
         String updatedfirstName = teacher.getFirstName() == null ? updatedTeacher.getFirstName() : teacher.getFirstName();
         String updatedLastName = teacher.getLastName() == null ? updatedTeacher.getLastName() : teacher.getLastName();
         String updatedEmail = teacher.getEmail() == null ? updatedTeacher.getEmail() : teacher.getEmail();
@@ -88,10 +104,7 @@ public class UniversityController {
     @PutMapping("/student/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable("id") final Long id, @RequestBody final Student student){
         Student updatedStudent = studentRepository.getReferenceById(id);
-
-        if(updatedStudent == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
+        
         String updatedfirstName = student.getFirstName() == null ? updatedStudent.getFirstName() : student.getFirstName();
         String updatedLastName = student.getLastName() == null ? updatedStudent.getLastName() : student.getLastName();
         String updatedEmail = student.getEmail() == null ? updatedStudent.getEmail() : student.getEmail();
