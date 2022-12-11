@@ -12,6 +12,7 @@ import pl.admonster.UniversityApp2.model.Teacher;
 import pl.admonster.UniversityApp2.repository.TeacherRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UniversityController {
@@ -41,7 +42,7 @@ public class UniversityController {
     }
 
     @GetMapping("/teacher/{firstName}/{lastName}")
-    public ResponseEntity getTeacherByFirstNameAndLastName(@PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName)
+    public ResponseEntity getTeacherByFirstNameAndLastName(@PathVariable("firstName") final String firstName, @PathVariable("lastName") final String lastName)
             throws JsonProcessingException {
         List<Teacher> foundTeacher = teacherRepository.getTeacherByFirstNameAndLastName(firstName, lastName);
         if(foundTeacher.isEmpty())
@@ -50,7 +51,7 @@ public class UniversityController {
     }
 
     @GetMapping("/student/{firstName}/{lastName}")
-    public ResponseEntity getStudentByFirstNameAndLastName(@PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName)
+    public ResponseEntity getStudentByFirstNameAndLastName(@PathVariable("firstName") final String firstName, @PathVariable("lastName") final String lastName)
             throws JsonProcessingException {
         List<Student> foundStudent = studentRepository.getStudentByFirstNameAndLastName(firstName, lastName);
         if(foundStudent.isEmpty())
@@ -104,7 +105,7 @@ public class UniversityController {
     @PutMapping("/student/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable("id") final Long id, @RequestBody final Student student){
         Student updatedStudent = studentRepository.getReferenceById(id);
-        
+
         String updatedfirstName = student.getFirstName() == null ? updatedStudent.getFirstName() : student.getFirstName();
         String updatedLastName = student.getLastName() == null ? updatedStudent.getLastName() : student.getLastName();
         String updatedEmail = student.getEmail() == null ? updatedStudent.getEmail() : student.getEmail();
@@ -118,6 +119,20 @@ public class UniversityController {
         updatedStudent.setFaculty(updatedFaculty);
 
         studentRepository.save(updatedStudent);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/teacher/{teacherId}/assign/student/{studentId}")
+    public ResponseEntity addStudentToTeacher(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
+        Optional<Student> foundStudent = studentRepository.findById(studentId);
+
+        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        foundTeacher.get().getAssignedStudents().add(foundStudent.get());
+        teacherRepository.save(foundTeacher.get());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -3,12 +3,16 @@ package pl.admonster.UniversityApp2.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 
 @Entity
 @Table(name="teachers")
+@Setter
+@Getter
 @NoArgsConstructor
 public class Teacher extends UniversityMember {
 
@@ -21,14 +25,6 @@ public class Teacher extends UniversityMember {
 
     @ManyToMany
     Set<Student> assignedStudents;
-
-    public String getCourse() {
-        return course;
-    }
-
-    public void setCourse(String course) {
-        this.course = course;
-    }
 
     @Override
     public String toString() {
