@@ -19,10 +19,10 @@ import java.util.regex.Pattern;
 abstract public class UniversityMember {
 
     public UniversityMember(String firstName, String lastName, int age, String email) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.email = email;
+        this.setFirstName(firstName);
+        this.setLastName(lastName);
+        this.setAge(age);
+        this.setEmail(email);
     }
 
     @Id

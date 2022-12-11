@@ -2,6 +2,7 @@ package pl.admonster.UniversityApp2.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,7 +14,7 @@ class TeacherTest {
     Teacher secondSameTeacher = new Teacher("Jan", "Kowalski", 38, "jankowalski@o2.pl", "Mechanika budowli");
     Teacher thirdSameTeacher = new Teacher("Jan", "Kowalski", 38, "jankowalski@o2.pl", "Mechanika budowli");
 
-    Teacher firstDiffrentTeacher = new Teacher("Mirosław", "Rzeczycki", 58, "miroslaw.rzeczycki76", "Konstrukcje stalowe I");
+    Teacher firstDiffrentTeacher = new Teacher("Mirosław", "Rzeczycki", 58, "miroslaw.rzeczycki76@yahoo.com", "Konstrukcje stalowe I");
 
     //Equals contract tests
     @Test
@@ -67,5 +68,67 @@ class TeacherTest {
     @Test
     public void hashCodeDifferenceTest(){
         assertNotEquals(firstTeacher.hashCode(), firstDiffrentTeacher.hashCode());
+    }
+
+    //data validation tests
+
+    @Test
+    public void eighteenYearsOldSetterTest(){
+        assertThrows(IllegalArgumentException.class, () -> firstTeacher.setAge(18));
+    }
+
+    @Test
+    public void eighteenYearsOldConstructorTest(){
+        assertThrows(IllegalArgumentException.class, () -> new Teacher("Jan", "Kowalski", 18, "jankowalski@gmail.com", "Mechanika"));
+    }
+
+    @Test
+    public void thirtyTwoYearsOldSetterTest(){
+        assertDoesNotThrow(() -> firstTeacher.setAge(32));
+    }
+
+    @Test
+    public void thirtyTwoYearsOldConstructorTest(){
+        assertDoesNotThrow(() -> new Teacher("Jan", "Kowalski", 32, "jankowalski@gmail.com", "Mechanika"));
+    }
+
+    @Test
+    public void emailAddreessWithoutAtSetterTest(){
+        assertThrows(InvalidParameterException.class, () -> firstTeacher.setEmail("randomEmailAddress.pl"));
+    }
+
+    @Test
+    public void emailAddreessWithoutAtConstructorTest(){
+        assertThrows(InvalidParameterException.class, () -> new Teacher("Jan", "Kowalski", 32, "randomEmailAddress.pl", "Mechanika"));
+    }
+
+    @Test
+    public void correctEmailAddressAtSetterTest(){
+        assertDoesNotThrow(() -> firstTeacher.setEmail("jxstudiopl@gmail.com"));
+    }
+
+    @Test
+    public void correctEmailAddressAtConstructorTest(){
+        assertDoesNotThrow(() -> new Teacher("Jan", "Kowalski", 32, "jxstudiopl@gmail.com", "Mechanika"));
+    }
+
+    @Test
+    public void twoLettersFirstNameSetterTest(){
+        assertThrows(InvalidParameterException.class, () -> firstTeacher.setFirstName("Mi"));
+    }
+
+    @Test
+    public void twoLettersFirstNameConstructorTest(){
+        assertThrows(InvalidParameterException.class, () -> new Teacher("Mi", "Kowalski", 32, "jankowalski@gmail.com", "Mechanika"));
+    }
+
+    @Test
+    public void threeLettersFirstNameSetterTest(){
+        assertDoesNotThrow(() -> firstTeacher.setFirstName("Leo"));
+    }
+
+    @Test
+    public void threeLettersFirstNameConstructorTest(){
+        assertDoesNotThrow(() -> new Teacher("Leo", "Kowalski", 32, "jankowalski@gmail.com", "Mechanika"));
     }
 }

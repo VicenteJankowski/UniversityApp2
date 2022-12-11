@@ -18,20 +18,32 @@ public class Teacher extends UniversityMember {
 
     public Teacher(String firstName, String lastName, int age, String email, String course) {
         super(firstName, lastName, age, email);
-        this.course = course;
+        setCourse(course);
     }
 
-    private String course;
+    String course;
 
     @ManyToMany
-    Set<Student> assignedStudents;
+    Set<Student> students;
+
+    public Teacher addStudent(Student student) {
+        students.add(student);
+        student.teachers.add(this);
+        return this;
+    }
+
+    public Teacher removeStudent(Student student) {
+        students.remove(student);
+        student.teachers.remove(this);
+        return this;
+    }
 
     @Override
     public String toString() {
         return "Teacher{ " +
                 super.toString() + '\'' +
                 "course='" + course + '\'' +
-                ", assignedStudents=" + assignedStudents +
+                ", students=" + students +
                 '}';
     }
 

@@ -123,7 +123,7 @@ public class UniversityController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/teacher/{teacherId}/assign/student/{studentId}")
+    @PutMapping("/teacher/{teacherId}/add/student/{studentId}")
     public ResponseEntity addStudentToTeacher(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
@@ -131,8 +131,59 @@ public class UniversityController {
         if(foundTeacher.isEmpty() || foundStudent.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        foundTeacher.get().getAssignedStudents().add(foundStudent.get());
+        if(foundTeacher.get().getStudents().contains(foundStudent.get()))
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        foundTeacher.get().addStudent(foundStudent.get());
         teacherRepository.save(foundTeacher.get());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/student/{studentId}/add/teacher/{teacherId}")
+    public ResponseEntity addTeacherToStudent(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
+        Optional<Student> foundStudent = studentRepository.findById(studentId);
+
+        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(foundStudent.get().getTeachers().contains(foundTeacher.get()))
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        foundStudent.get().addTeacher(foundTeacher.get());
+        studentRepository.save(foundStudent.get());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/teacher/{teacherId}/remove/student/{studentId}")
+    public ResponseEntity removeStudentFromTeacher(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
+        Optional<Student> foundStudent = studentRepository.findById(studentId);
+
+        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(foundTeacher.get().getStudents().contains(foundStudent.get()))
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        foundTeacher.get().removeStudent(foundStudent.get());
+        teacherRepository.save(foundTeacher.get());
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/student/{teacherId}/remove/teacher/{studentId}")
+    public ResponseEntity removeTeacherFromStudent(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
+        Optional<Student> foundStudent = studentRepository.findById(studentId);
+
+        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(!foundStudent.get().getTeachers().contains(foundTeacher.get()))
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        foundStudent.get().removeTeacher(foundTeacher.get());
+        studentRepository.save(foundStudent.get());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
