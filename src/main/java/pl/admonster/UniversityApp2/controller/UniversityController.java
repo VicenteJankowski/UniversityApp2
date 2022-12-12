@@ -37,31 +37,43 @@ public class UniversityController {
         return "Hello Vicente!";
     }
 
+    private List<Order> getOrder(String[] requestedSort){
+        List<Order> orders = new ArrayList<>();
+
+        if (requestedSort[0].contains(",")) {
+            for (String sortOrder : requestedSort) {
+                String[] splittedRequestedSort = sortOrder.split(",");
+                orders.add(new Order(splittedRequestedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, splittedRequestedSort[0]));
+            }
+        }
+        else {
+            orders.add(new Order(requestedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, requestedSort[0]));
+        }
+
+        return orders;
+    }
+
     @GetMapping("/teachers")
-    public ResponseEntity getAllTeachers() throws JsonProcessingException {
-        return ResponseEntity.ok(objectMapper.writeValueAsString(teacherRepository.findAll()));
+    public ResponseEntity getAllTeachers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size,
+            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
+            throws JsonProcessingException {
+
+        Pageable pagingSort = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
+        Page<Teacher> singlePage = teacherRepository.findAll(pagingSort);
+
+        return ResponseEntity.ok(objectMapper.writeValueAsString(singlePage.getContent()));
     }
 
     @GetMapping("/students")
     public ResponseEntity getAllStudents(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "2") int size,
-            @RequestParam(defaultValue = "id,desc") String[] sort)
+            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
             throws JsonProcessingException {
 
-        List<Order> orders = new ArrayList<>();
-
-        if (sort[0].contains(",")) {
-            for (String sortOrder : sort) {
-                String[] splittedSort = sortOrder.split(",");
-                orders.add(new Order(splittedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, splittedSort[0]));
-            }
-        }
-        else {
-            orders.add(new Order(sort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort[0]));
-        }
-
-        Pageable pagingSort = PageRequest.of(page, size, Sort.by(orders));
+        Pageable pagingSort = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
         Page<Student> singlePage = studentRepository.findAll(pagingSort);
 
         return ResponseEntity.ok(objectMapper.writeValueAsString(singlePage.getContent()));
