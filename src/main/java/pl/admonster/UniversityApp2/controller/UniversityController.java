@@ -32,11 +32,6 @@ public class UniversityController {
     @Autowired
     ObjectMapper objectMapper;
 
-    @GetMapping("/test")
-    public String runTest (){
-        return "Hello Vicente!";
-    }
-
     private List<Order> getOrder(String[] requestedSort){
         List<Order> orders = new ArrayList<>();
 
