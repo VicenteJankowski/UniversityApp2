@@ -12,6 +12,8 @@ import java.security.InvalidParameterException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 @MappedSuperclass
 @Setter
 @Getter
@@ -26,7 +28,7 @@ abstract public class UniversityMember {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     private String firstName;

@@ -3,6 +3,11 @@ package pl.admonster.UniversityApp2.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +16,7 @@ import pl.admonster.UniversityApp2.repository.StudentRepository;
 import pl.admonster.UniversityApp2.model.Teacher;
 import pl.admonster.UniversityApp2.repository.TeacherRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +33,7 @@ public class UniversityController {
     ObjectMapper objectMapper;
 
     @GetMapping("/test")
-    public String runTest(){
+    public String runTest (){
         return "Hello Vicente!";
     }
 
@@ -37,15 +43,36 @@ public class UniversityController {
     }
 
     @GetMapping("/students")
-    public ResponseEntity getAllStudents() throws JsonProcessingException {
-        return ResponseEntity.ok(objectMapper.writeValueAsString(studentRepository.findAll()));
+    public ResponseEntity getAllStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size,
+            @RequestParam(defaultValue = "id,desc") String[] sort)
+            throws JsonProcessingException {
+
+        List<Order> orders = new ArrayList<>();
+
+        if (sort[0].contains(",")) {
+            for (String sortOrder : sort) {
+                String[] splittedSort = sortOrder.split(",");
+                orders.add(new Order(splittedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, splittedSort[0]));
+            }
+        }
+        else {
+            orders.add(new Order(sort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sort[0]));
+        }
+
+        Pageable pagingSort = PageRequest.of(page, size, Sort.by(orders));
+        Page<Student> singlePage = studentRepository.findAll(pagingSort);
+
+        return ResponseEntity.ok(objectMapper.writeValueAsString(singlePage.getContent()));
     }
 
     @GetMapping("/teacher/{firstName}/{lastName}")
-    public ResponseEntity getTeacherByFirstNameAndLastName(@PathVariable("firstName") final String firstName, @PathVariable("lastName") final String lastName)
+    public ResponseEntity getTeacherByFirstNameAndLastName(
+            @PathVariable("firstName") final String firstName, @PathVariable("lastName") final String lastName)
             throws JsonProcessingException {
         List<Teacher> foundTeacher = teacherRepository.getTeacherByFirstNameAndLastName(firstName, lastName);
-        if(foundTeacher.isEmpty())
+        if (foundTeacher.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(objectMapper.writeValueAsString(foundTeacher));
     }
@@ -54,16 +81,16 @@ public class UniversityController {
     public ResponseEntity getStudentByFirstNameAndLastName(@PathVariable("firstName") final String firstName, @PathVariable("lastName") final String lastName)
             throws JsonProcessingException {
         List<Student> foundStudent = studentRepository.getStudentByFirstNameAndLastName(firstName, lastName);
-        if(foundStudent.isEmpty())
+        if (foundStudent.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(objectMapper.writeValueAsString(foundStudent));
     }
 
     @PostMapping("/teacher")
-    public ResponseEntity<Teacher> createTeacher(@RequestBody final Teacher teacher) {
+    public ResponseEntity<Teacher> createTeacher (@RequestBody final Teacher teacher) {
         List<Teacher> existingTeachers = teacherRepository.findAll();
 
-        if(existingTeachers.contains(teacher))
+        if (existingTeachers.contains(teacher))
             return ResponseEntity.unprocessableEntity().build();
         teacherRepository.save(teacher);
 
@@ -71,10 +98,10 @@ public class UniversityController {
     }
 
     @PostMapping("/student")
-    public ResponseEntity<Student> createStudent(@RequestBody final Student student) {
+    public ResponseEntity<Student> createStudent (@RequestBody final Student student) {
         List<Student> existingStudents = studentRepository.findAll();
 
-        if(existingStudents.contains(student))
+        if (existingStudents.contains(student))
             return ResponseEntity.unprocessableEntity().build();
         studentRepository.save(student);
 
@@ -82,7 +109,7 @@ public class UniversityController {
     }
 
     @PutMapping("/teacher/{id}")
-    public ResponseEntity<Teacher> updateTeacher(@PathVariable("id") final Long id, @RequestBody final Teacher teacher){
+    public ResponseEntity<Teacher> updateTeacher (@PathVariable("id") final Long id, @RequestBody final Teacher teacher){
         Teacher updatedTeacher = teacherRepository.getReferenceById(id);
 
         String updatedfirstName = teacher.getFirstName() == null ? updatedTeacher.getFirstName() : teacher.getFirstName();
@@ -103,7 +130,7 @@ public class UniversityController {
     }
 
     @PutMapping("/student/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable("id") final Long id, @RequestBody final Student student){
+    public ResponseEntity<Student> updateStudent (@PathVariable("id") final Long id, @RequestBody final Student student){
         Student updatedStudent = studentRepository.getReferenceById(id);
 
         String updatedfirstName = student.getFirstName() == null ? updatedStudent.getFirstName() : student.getFirstName();
@@ -124,14 +151,14 @@ public class UniversityController {
     }
 
     @PutMapping("/teacher/{teacherId}/add/student/{studentId}")
-    public ResponseEntity addStudentToTeacher(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity addStudentToTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
-        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        if(foundTeacher.get().getStudents().contains(foundStudent.get()))
+        if (foundTeacher.get().getStudents().contains(foundStudent.get()))
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 
         foundTeacher.get().addStudent(foundStudent.get());
@@ -141,13 +168,13 @@ public class UniversityController {
     }
 
     @PutMapping("/student/{studentId}/add/teacher/{teacherId}")
-    public ResponseEntity addTeacherToStudent(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity addTeacherToStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
-        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        if(foundStudent.get().getTeachers().contains(foundTeacher.get()))
+        if (foundStudent.get().getTeachers().contains(foundTeacher.get()))
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 
         foundStudent.get().addTeacher(foundTeacher.get());
@@ -157,13 +184,13 @@ public class UniversityController {
     }
 
     @DeleteMapping("/teacher/{teacherId}/remove/student/{studentId}")
-    public ResponseEntity removeStudentFromTeacher(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity removeStudentFromTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
-        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        if(foundTeacher.get().getStudents().contains(foundStudent.get()))
+        if (foundTeacher.get().getStudents().contains(foundStudent.get()))
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 
         foundTeacher.get().removeStudent(foundStudent.get());
@@ -173,13 +200,13 @@ public class UniversityController {
     }
 
     @DeleteMapping("/student/{teacherId}/remove/teacher/{studentId}")
-    public ResponseEntity removeTeacherFromStudent(@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity removeTeacherFromStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
-        if(foundTeacher.isEmpty() || foundStudent.isEmpty())
+        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        if(!foundStudent.get().getTeachers().contains(foundTeacher.get()))
+        if (!foundStudent.get().getTeachers().contains(foundTeacher.get()))
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
 
         foundStudent.get().removeTeacher(foundTeacher.get());
@@ -189,13 +216,13 @@ public class UniversityController {
     }
 
     @DeleteMapping("/teacher/{id}")
-    public ResponseEntity<HttpStatus> deleteTeacher(@PathVariable("id") final Long id){
+    public ResponseEntity<HttpStatus> deleteTeacher (@PathVariable("id") final Long id){
         teacherRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/student/{id}")
-    public ResponseEntity<HttpStatus> deleteStudent(@PathVariable("id") final Long id){
+    public ResponseEntity<HttpStatus> deleteStudent (@PathVariable("id") final Long id){
         studentRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
