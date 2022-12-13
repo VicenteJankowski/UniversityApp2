@@ -1,6 +1,7 @@
 package pl.admonster.UniversityApp2.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
@@ -24,19 +25,19 @@ public class Teacher extends UniversityMember {
 
     String course;
 
-    @ManyToMany
+    @ManyToMany(cascade=CascadeType.ALL)
     @JsonBackReference
     Set<Student> students;
 
     public Teacher addStudent(Student student) {
         students.add(student);
-        student.teachers.add(this);
+        //student.teachers.add(this);
         return this;
     }
 
     public Teacher removeStudent(Student student) {
         students.remove(student);
-        student.teachers.remove(this);
+        //student.teachers.remove(this);
         return this;
     }
 

@@ -30,13 +30,13 @@ public class Student extends UniversityMember {
 
     public Student addTeacher(Teacher teacher) {
         teachers.add(teacher);
-        teacher.students.add(this);
+        //teacher.students.add(this);
         return this;
     }
 
     public Student removeTeacher(Teacher teacher) {
         teachers.remove(teacher);
-        teacher.students.remove(this);
+        //teacher.students.remove(this);
         return this;
     }
 
