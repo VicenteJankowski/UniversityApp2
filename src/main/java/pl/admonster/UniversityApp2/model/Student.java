@@ -1,5 +1,6 @@
 package pl.admonster.UniversityApp2.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
@@ -24,6 +25,7 @@ public class Student extends UniversityMember {
     String faculty;
 
     @ManyToMany(mappedBy="students")
+    @JsonManagedReference
     Set<Teacher> teachers;
 
     public Student addTeacher(Teacher teacher) {

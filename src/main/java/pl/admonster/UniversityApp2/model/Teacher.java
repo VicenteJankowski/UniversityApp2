@@ -1,5 +1,6 @@
 package pl.admonster.UniversityApp2.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
@@ -24,6 +25,7 @@ public class Teacher extends UniversityMember {
     String course;
 
     @ManyToMany
+    @JsonBackReference
     Set<Student> students;
 
     public Teacher addStudent(Student student) {

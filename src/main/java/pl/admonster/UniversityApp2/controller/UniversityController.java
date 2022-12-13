@@ -32,9 +32,8 @@ public class UniversityController {
     @Autowired
     ObjectMapper objectMapper;
 
-    private List<Order> getOrder(String[] requestedSort){
+    private List<Order> getOrder(String[] requestedSort) {
         List<Order> orders = new ArrayList<>();
-
         if (requestedSort[0].contains(",")) {
             for (String sortOrder : requestedSort) {
                 String[] splittedRequestedSort = sortOrder.split(",");
@@ -44,25 +43,31 @@ public class UniversityController {
         else {
             orders.add(new Order(requestedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, requestedSort[0]));
         }
-
         return orders;
     }
 
     @GetMapping("/teachers")
     public ResponseEntity getAllTeachers(
+            @RequestParam(required = false) Long studentId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "2") int size,
             @RequestParam(defaultValue = "id,desc") String[] requestedSort)
             throws JsonProcessingException {
 
         Pageable pagingSort = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
+
         Page<Teacher> singlePage = teacherRepository.findAll(pagingSort);
+
+        if (studentId != null) {
+            singlePage = teacherRepository.findByStudents_Id(studentId, pagingSort);
+        }
 
         return ResponseEntity.ok(objectMapper.writeValueAsString(singlePage.getContent()));
     }
 
     @GetMapping("/students")
     public ResponseEntity getAllStudents(
+            @RequestParam(required = false) Long teacherId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "2") int size,
             @RequestParam(defaultValue = "id,desc") String[] requestedSort)
@@ -71,26 +76,41 @@ public class UniversityController {
         Pageable pagingSort = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
         Page<Student> singlePage = studentRepository.findAll(pagingSort);
 
+        if (teacherId != null) {
+            singlePage = studentRepository.findByTeachers_Id(teacherId, pagingSort);
+        }
+
         return ResponseEntity.ok(objectMapper.writeValueAsString(singlePage.getContent()));
     }
 
     @GetMapping("/teacher/{firstName}/{lastName}")
     public ResponseEntity getTeacherByFirstNameAndLastName(
-            @PathVariable("firstName") final String firstName, @PathVariable("lastName") final String lastName)
+            @PathVariable("firstName") final String firstName,
+            @PathVariable("lastName") final String lastName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size,
+            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
             throws JsonProcessingException {
-        List<Teacher> foundTeacher = teacherRepository.getTeacherByFirstNameAndLastName(firstName, lastName);
+        Pageable pageSorting = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
+        Page<Teacher> foundTeacher = teacherRepository.findTeacherByFirstNameAndLastName(firstName, lastName, pageSorting);
         if (foundTeacher.isEmpty())
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(objectMapper.writeValueAsString(foundTeacher));
+        return ResponseEntity.ok(objectMapper.writeValueAsString(foundTeacher.getContent()));
     }
 
     @GetMapping("/student/{firstName}/{lastName}")
-    public ResponseEntity getStudentByFirstNameAndLastName(@PathVariable("firstName") final String firstName, @PathVariable("lastName") final String lastName)
+    public ResponseEntity getStudentByFirstNameAndLastName(
+            @PathVariable("firstName") final String firstName,
+            @PathVariable("lastName") final String lastName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size,
+            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
             throws JsonProcessingException {
-        List<Student> foundStudent = studentRepository.getStudentByFirstNameAndLastName(firstName, lastName);
+        Pageable pageSorting = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
+        Page<Student> foundStudent = studentRepository.findStudentByFirstNameAndLastName(firstName, lastName, pageSorting);
         if (foundStudent.isEmpty())
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(objectMapper.writeValueAsString(foundStudent));
+        return ResponseEntity.ok(objectMapper.writeValueAsString(foundStudent.getContent()));
     }
 
     @PostMapping("/teacher")
