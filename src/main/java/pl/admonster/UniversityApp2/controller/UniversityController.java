@@ -16,9 +16,7 @@ import pl.admonster.UniversityApp2.repository.StudentRepository;
 import pl.admonster.UniversityApp2.model.Teacher;
 import pl.admonster.UniversityApp2.repository.TeacherRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 public class UniversityController {
@@ -62,7 +60,15 @@ public class UniversityController {
             singlePage = teacherRepository.findByStudents_Id(studentId, pagingSort);
         }
 
-        return ResponseEntity.ok(objectMapper.writeValueAsString(singlePage.getContent()));
+        List<Teacher> teachers = new ArrayList<>();
+        teachers = singlePage.getContent();
+        Map<String, Object> response = new HashMap<>();
+        response.put("teachers", teachers);
+        response.put("currentPage", singlePage.getNumber());
+        response.put("totalItems", singlePage.getTotalElements());
+        response.put("totalPages", singlePage.getTotalPages());
+
+        return ResponseEntity.ok(objectMapper.writeValueAsString(response));
     }
 
     @GetMapping("/students")
@@ -80,7 +86,15 @@ public class UniversityController {
             singlePage = studentRepository.findByTeachers_Id(teacherId, pagingSort);
         }
 
-        return ResponseEntity.ok(objectMapper.writeValueAsString(singlePage.getContent()));
+        List<Student> students = new ArrayList<>();
+        students = singlePage.getContent();
+        Map<String, Object> response = new HashMap<>();
+        response.put("students", students);
+        response.put("currentPage", singlePage.getNumber());
+        response.put("totalItems", singlePage.getTotalElements());
+        response.put("totalPages", singlePage.getTotalPages());
+
+        return ResponseEntity.ok(objectMapper.writeValueAsString(response));
     }
 
     @GetMapping("/teacher/{firstName}/{lastName}")
@@ -91,11 +105,10 @@ public class UniversityController {
             @RequestParam(defaultValue = "2") int size,
             @RequestParam(defaultValue = "id,desc") String[] requestedSort)
             throws JsonProcessingException {
-        Pageable pageSorting = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
-        Page<Teacher> foundTeacher = teacherRepository.findTeacherByFirstNameAndLastName(firstName, lastName, pageSorting);
+        List<Teacher> foundTeacher = teacherRepository.findTeacherByFirstNameAndLastName(firstName, lastName);
         if (foundTeacher.isEmpty())
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(objectMapper.writeValueAsString(foundTeacher.getContent()));
+        return ResponseEntity.ok(objectMapper.writeValueAsString(foundTeacher));
     }
 
     @GetMapping("/student/{firstName}/{lastName}")
@@ -106,11 +119,10 @@ public class UniversityController {
             @RequestParam(defaultValue = "2") int size,
             @RequestParam(defaultValue = "id,desc") String[] requestedSort)
             throws JsonProcessingException {
-        Pageable pageSorting = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
-        Page<Student> foundStudent = studentRepository.findStudentByFirstNameAndLastName(firstName, lastName, pageSorting);
+        List<Student> foundStudent = studentRepository.findStudentByFirstNameAndLastName(firstName, lastName);
         if (foundStudent.isEmpty())
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(objectMapper.writeValueAsString(foundStudent.getContent()));
+        return ResponseEntity.ok(objectMapper.writeValueAsString(foundStudent));
     }
 
     @PostMapping("/teacher")
