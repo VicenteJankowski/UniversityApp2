@@ -45,7 +45,7 @@ public class UniversityController {
     }
 
     @GetMapping("/teachers")
-    public ResponseEntity getAllTeachers(
+    public ResponseEntity<String> getAllTeachers(
             @RequestParam(required = false) Long studentId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "2") int size,
@@ -60,7 +60,7 @@ public class UniversityController {
             singlePage = teacherRepository.findByStudents_Id(studentId, pagingSort);
         }
 
-        List<Teacher> teachers = new ArrayList<>();
+        List<Teacher> teachers;
         teachers = singlePage.getContent();
         Map<String, Object> response = new HashMap<>();
         response.put("teachers", teachers);
@@ -72,7 +72,7 @@ public class UniversityController {
     }
 
     @GetMapping("/students")
-    public ResponseEntity getAllStudents(
+    public ResponseEntity<String> getAllStudents(
             @RequestParam(required = false) Long teacherId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "2") int size,
@@ -86,7 +86,7 @@ public class UniversityController {
             singlePage = studentRepository.findByTeachers_Id(teacherId, pagingSort);
         }
 
-        List<Student> students = new ArrayList<>();
+        List<Student> students;
         students = singlePage.getContent();
         Map<String, Object> response = new HashMap<>();
         response.put("students", students);
@@ -98,7 +98,7 @@ public class UniversityController {
     }
 
     @GetMapping("/teacher/{firstName}/{lastName}")
-    public ResponseEntity getTeacherByFirstNameAndLastName(
+    public ResponseEntity<String> getTeacherByFirstNameAndLastName(
             @PathVariable("firstName") final String firstName,
             @PathVariable("lastName") final String lastName,
             @RequestParam(defaultValue = "0") int page,
@@ -112,7 +112,7 @@ public class UniversityController {
     }
 
     @GetMapping("/student/{firstName}/{lastName}")
-    public ResponseEntity getStudentByFirstNameAndLastName(
+    public ResponseEntity<String> getStudentByFirstNameAndLastName(
             @PathVariable("firstName") final String firstName,
             @PathVariable("lastName") final String lastName,
             @RequestParam(defaultValue = "0") int page,
@@ -190,7 +190,7 @@ public class UniversityController {
     }
 
     @PutMapping("/teacher/{teacherId}/add/student/{studentId}")
-    public ResponseEntity addStudentToTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity<HttpStatus> addStudentToTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
@@ -207,7 +207,7 @@ public class UniversityController {
     }
 
     @PutMapping("/student/{studentId}/add/teacher/{teacherId}")
-    public ResponseEntity addTeacherToStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity<HttpStatus> addTeacherToStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
@@ -223,7 +223,7 @@ public class UniversityController {
     }
 
     @DeleteMapping("/teacher/{teacherId}/remove/student/{studentId}")
-    public ResponseEntity removeStudentFromTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity<HttpStatus> removeStudentFromTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
@@ -239,7 +239,7 @@ public class UniversityController {
     }
 
     @DeleteMapping("/student/{teacherId}/remove/teacher/{studentId}")
-    public ResponseEntity removeTeacherFromStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
+    public ResponseEntity<HttpStatus> removeTeacherFromStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
         Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
         Optional<Student> foundStudent = studentRepository.findById(studentId);
 
