@@ -1,268 +1,118 @@
 package pl.admonster.UniversityApp2.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.admonster.UniversityApp2.model.Student;
-import pl.admonster.UniversityApp2.repository.StudentRepository;
 import pl.admonster.UniversityApp2.model.Teacher;
-import pl.admonster.UniversityApp2.repository.TeacherRepository;
-
-import java.util.*;
+import pl.admonster.UniversityApp2.service.UniversityService;
 
 @RestController
 public class UniversityController {
 
     @Autowired
-    TeacherRepository teacherRepository;
-
-    @Autowired
-    StudentRepository studentRepository;
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    private List<Order> getOrder(String[] requestedSort) {
-        List<Order> orders = new ArrayList<>();
-        if (requestedSort[0].contains(",")) {
-            for (String sortOrder : requestedSort) {
-                String[] splittedRequestedSort = sortOrder.split(",");
-                orders.add(new Order(splittedRequestedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, splittedRequestedSort[0]));
-            }
-        }
-        else {
-            orders.add(new Order(requestedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, requestedSort[0]));
-        }
-        return orders;
-    }
+    UniversityService universityService;
 
     @GetMapping("/teachers")
+    @SuppressWarnings("unused")
     public ResponseEntity<String> getAllTeachers(
-            @RequestParam(required = false) Long studentId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size,
-            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
-            throws JsonProcessingException {
-
-        Pageable pagingSort = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
-
-        Page<Teacher> singlePage = teacherRepository.findAll(pagingSort);
-
-        if (studentId != null) {
-            singlePage = teacherRepository.findByStudents_Id(studentId, pagingSort);
-        }
-
-        List<Teacher> teachers;
-        teachers = singlePage.getContent();
-        Map<String, Object> response = new HashMap<>();
-        response.put("teachers", teachers);
-        response.put("currentPage", singlePage.getNumber());
-        response.put("totalItems", singlePage.getTotalElements());
-        response.put("totalPages", singlePage.getTotalPages());
-
-        return ResponseEntity.ok(objectMapper.writeValueAsString(response));
+        @RequestParam(required = false) Long studentId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "2") int size,
+        @RequestParam(defaultValue = "id,desc") String[] requestedSort)
+        throws JsonProcessingException {
+            return universityService.getAllTeachers(studentId, page, size, requestedSort);
     }
 
     @GetMapping("/students")
+    @SuppressWarnings("unused")
     public ResponseEntity<String> getAllStudents(
-            @RequestParam(required = false) Long teacherId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size,
-            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
-            throws JsonProcessingException {
-
-        Pageable pagingSort = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
-        Page<Student> singlePage = studentRepository.findAll(pagingSort);
-
-        if (teacherId != null) {
-            singlePage = studentRepository.findByTeachers_Id(teacherId, pagingSort);
-        }
-
-        List<Student> students;
-        students = singlePage.getContent();
-        Map<String, Object> response = new HashMap<>();
-        response.put("students", students);
-        response.put("currentPage", singlePage.getNumber());
-        response.put("totalItems", singlePage.getTotalElements());
-        response.put("totalPages", singlePage.getTotalPages());
-
-        return ResponseEntity.ok(objectMapper.writeValueAsString(response));
+        @RequestParam(required = false) Long teacherId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "2") int size,
+        @RequestParam(defaultValue = "id,desc") String[] requestedSort)
+        throws JsonProcessingException {
+            return universityService.getAllStudents(teacherId, page, size, requestedSort);
     }
 
     @GetMapping("/teacher/{firstName}/{lastName}")
+    @SuppressWarnings("unused")
     public ResponseEntity<String> getTeacherByFirstNameAndLastName(
-            @PathVariable("firstName") final String firstName,
-            @PathVariable("lastName") final String lastName,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size,
-            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
-            throws JsonProcessingException {
-        List<Teacher> foundTeacher = teacherRepository.findTeacherByFirstNameAndLastName(firstName, lastName);
-        if (foundTeacher.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(objectMapper.writeValueAsString(foundTeacher));
+        @PathVariable("firstName") final String firstName,
+        @PathVariable("lastName") final String lastName)
+        throws JsonProcessingException {
+            return universityService.getTeacherByFirstNameAndLastName(firstName, lastName);
     }
 
     @GetMapping("/student/{firstName}/{lastName}")
+    @SuppressWarnings("unused")
     public ResponseEntity<String> getStudentByFirstNameAndLastName(
-            @PathVariable("firstName") final String firstName,
-            @PathVariable("lastName") final String lastName,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size,
-            @RequestParam(defaultValue = "id,desc") String[] requestedSort)
-            throws JsonProcessingException {
-        List<Student> foundStudent = studentRepository.findStudentByFirstNameAndLastName(firstName, lastName);
-        if (foundStudent.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(objectMapper.writeValueAsString(foundStudent));
+        @PathVariable("firstName") final String firstName,
+        @PathVariable("lastName") final String lastName)
+        throws JsonProcessingException {
+            return universityService.getStudentByFirstNameAndLastName(firstName, lastName);
     }
 
     @PostMapping("/teacher")
+    @SuppressWarnings("unused")
     public ResponseEntity<Teacher> createTeacher (@RequestBody final Teacher teacher) {
-        List<Teacher> existingTeachers = teacherRepository.findAll();
-
-        if (existingTeachers.contains(teacher))
-            return ResponseEntity.unprocessableEntity().build();
-        teacherRepository.save(teacher);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return universityService.createTeacher(teacher);
     }
 
     @PostMapping("/student")
+    @SuppressWarnings("unused")
     public ResponseEntity<Student> createStudent (@RequestBody final Student student) {
-        List<Student> existingStudents = studentRepository.findAll();
-
-        if (existingStudents.contains(student))
-            return ResponseEntity.unprocessableEntity().build();
-        studentRepository.save(student);
-
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return universityService.createStudent(student);
     }
 
     @PutMapping("/teacher/{id}")
+    @SuppressWarnings("unused")
     public ResponseEntity<Teacher> updateTeacher (@PathVariable("id") final Long id, @RequestBody final Teacher teacher){
-        Teacher updatedTeacher = teacherRepository.getReferenceById(id);
-
-        String updatedfirstName = teacher.getFirstName() == null ? updatedTeacher.getFirstName() : teacher.getFirstName();
-        String updatedLastName = teacher.getLastName() == null ? updatedTeacher.getLastName() : teacher.getLastName();
-        String updatedEmail = teacher.getEmail() == null ? updatedTeacher.getEmail() : teacher.getEmail();
-        int updatedAge = teacher.getAge() <= 0 ? updatedTeacher.getAge() : teacher.getAge();
-        String updatedCourse = teacher.getCourse() == null ? updatedTeacher.getCourse() : teacher.getCourse();
-
-        updatedTeacher.setFirstName(updatedfirstName);
-        updatedTeacher.setLastName(updatedLastName);
-        updatedTeacher.setEmail(updatedEmail);
-        updatedTeacher.setAge(updatedAge);
-        updatedTeacher.setCourse(updatedCourse);
-
-        teacherRepository.save(updatedTeacher);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return universityService.updateTeacher(id, teacher);
     }
 
     @PutMapping("/student/{id}")
+    @SuppressWarnings("unused")
     public ResponseEntity<Student> updateStudent (@PathVariable("id") final Long id, @RequestBody final Student student){
-        Student updatedStudent = studentRepository.getReferenceById(id);
-
-        String updatedfirstName = student.getFirstName() == null ? updatedStudent.getFirstName() : student.getFirstName();
-        String updatedLastName = student.getLastName() == null ? updatedStudent.getLastName() : student.getLastName();
-        String updatedEmail = student.getEmail() == null ? updatedStudent.getEmail() : student.getEmail();
-        int updatedAge = student.getAge() <= 0 ? updatedStudent.getAge() : student.getAge();
-        String updatedFaculty = student.getFaculty() == null ? updatedStudent.getFaculty() : student.getFaculty();
-
-        updatedStudent.setFirstName(updatedfirstName);
-        updatedStudent.setLastName(updatedLastName);
-        updatedStudent.setEmail(updatedEmail);
-        updatedStudent.setAge(updatedAge);
-        updatedStudent.setFaculty(updatedFaculty);
-
-        studentRepository.save(updatedStudent);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return universityService.updateStudent(id, student);
     }
 
     @PutMapping("/teacher/{teacherId}/add/student/{studentId}")
+    @SuppressWarnings("unused")
     public ResponseEntity<HttpStatus> addStudentToTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
-        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
-        Optional<Student> foundStudent = studentRepository.findById(studentId);
-
-        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-        if (foundTeacher.get().getStudents().contains(foundStudent.get()))
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-
-        foundTeacher.get().addStudent(foundStudent.get());
-        teacherRepository.save(foundTeacher.get());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return universityService.addStudentToTeacher(teacherId, studentId);
     }
 
     @PutMapping("/student/{studentId}/add/teacher/{teacherId}")
+    @SuppressWarnings("unused")
     public ResponseEntity<HttpStatus> addTeacherToStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
-        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
-        Optional<Student> foundStudent = studentRepository.findById(studentId);
-
-        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        if (foundStudent.get().getTeachers().contains(foundTeacher.get()))
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-
-        foundStudent.get().addTeacher(foundTeacher.get());
-        studentRepository.save(foundStudent.get());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return universityService.addTeacherToStudent(teacherId, studentId);
     }
 
     @DeleteMapping("/teacher/{teacherId}/remove/student/{studentId}")
+    @SuppressWarnings("unused")
     public ResponseEntity<HttpStatus> removeStudentFromTeacher (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
-        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
-        Optional<Student> foundStudent = studentRepository.findById(studentId);
-
-        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        if (foundTeacher.get().getStudents().contains(foundStudent.get()))
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-
-        foundTeacher.get().removeStudent(foundStudent.get());
-        teacherRepository.save(foundTeacher.get());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return universityService.removeStudentFromTeacher(teacherId, studentId);
     }
 
     @DeleteMapping("/student/{teacherId}/remove/teacher/{studentId}")
+    @SuppressWarnings("unused")
     public ResponseEntity<HttpStatus> removeTeacherFromStudent (@PathVariable("teacherId") final Long teacherId, @PathVariable("studentId") final Long studentId) {
-        Optional<Teacher> foundTeacher = teacherRepository.findById(teacherId);
-        Optional<Student> foundStudent = studentRepository.findById(studentId);
-
-        if (foundTeacher.isEmpty() || foundStudent.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        if (!foundStudent.get().getTeachers().contains(foundTeacher.get()))
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-
-        foundStudent.get().removeTeacher(foundTeacher.get());
-        studentRepository.save(foundStudent.get());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return universityService.removeTeacherFromStudent(teacherId, studentId);
     }
 
     @DeleteMapping("/teacher/{id}")
+    @SuppressWarnings("unused")
     public ResponseEntity<HttpStatus> deleteTeacher (@PathVariable("id") final Long id){
-        teacherRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return universityService.deleteTeacher(id);
     }
 
     @DeleteMapping("/student/{id}")
+    @SuppressWarnings("unused")
     public ResponseEntity<HttpStatus> deleteStudent (@PathVariable("id") final Long id){
-        studentRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return universityService.deleteStudent(id);
     }
 }

@@ -18,7 +18,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Setter
 @Getter
 @NoArgsConstructor
-abstract public class UniversityMember {
+abstract class UniversityMember {
 
     public UniversityMember(String firstName, String lastName, int age, String email) {
         this.setFirstName(firstName);
