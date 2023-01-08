@@ -34,11 +34,11 @@ public class UniversityService {
         if (requestedSort[0].contains(",")) {
             for (String sortOrder : requestedSort) {
                 String[] splittedRequestedSort = sortOrder.split(",");
-                orders.add(new Sort.Order(splittedRequestedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, splittedRequestedSort[0]));
+                orders.add(new Sort.Order(splittedRequestedSort[1].equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, splittedRequestedSort[0]));
             }
         }
         else {
-            orders.add(new Sort.Order(requestedSort[1].equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, requestedSort[0]));
+            orders.add(new Sort.Order(requestedSort[1].equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, requestedSort[0]));
         }
         return orders;
     }

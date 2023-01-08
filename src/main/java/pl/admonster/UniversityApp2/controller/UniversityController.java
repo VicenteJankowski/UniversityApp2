@@ -33,9 +33,9 @@ public class UniversityController {
         @RequestParam(required = false) Long studentId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "2") int size,
-        @RequestParam(defaultValue = "id,desc") String[] requestedSort)
+        @RequestParam(defaultValue = "id,desc") String[] sort)
         throws JsonProcessingException {
-            return universityService.getAllTeachers(studentId, page, size, requestedSort);
+            return universityService.getAllTeachers(studentId, page, size, sort);
     }
 
     @GetMapping("/students")
@@ -45,8 +45,8 @@ public class UniversityController {
         @RequestParam(required = false) Long teacherId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "2") int size,
-        @RequestParam(defaultValue = "id,desc") String[] requestedSort) {
-            ResponseEntity<Map<String, Object>> response = universityService.getAllStudents(teacherId, page, size, requestedSort);
+        @RequestParam(defaultValue = "id,asc") String[] sort) {
+            ResponseEntity<Map<String, Object>> response = universityService.getAllStudents(teacherId, page, size, sort);
             model.addAttribute("students", response.getBody().get("students"));
             model.addAttribute("currentPage", response.getBody().get("currentPage"));
             model.addAttribute("totalItems", response.getBody().get("totalItems"));
