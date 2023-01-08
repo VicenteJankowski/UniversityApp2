@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pl.admonster.UniversityApp2.model.Student;
 import pl.admonster.UniversityApp2.model.Teacher;
 import pl.admonster.UniversityApp2.service.UniversityService;
+
+import java.util.Map;
 
 @Controller
 public class UniversityController {
@@ -18,6 +21,7 @@ public class UniversityController {
     UniversityService universityService;
 
     @GetMapping("/")
+    @SuppressWarnings("unused")
     public String getIndex() {
         return "index";
     }
@@ -25,6 +29,7 @@ public class UniversityController {
     @GetMapping("/teachers")
     @SuppressWarnings("unused")
     public ResponseEntity<String> getAllTeachers(
+        Model model,
         @RequestParam(required = false) Long studentId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "2") int size,
@@ -35,13 +40,18 @@ public class UniversityController {
 
     @GetMapping("/students")
     @SuppressWarnings("unused")
-    public ResponseEntity<String> getAllStudents(
+    public String getAllStudents(
+        Model model,
         @RequestParam(required = false) Long teacherId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "2") int size,
-        @RequestParam(defaultValue = "id,desc") String[] requestedSort)
-        throws JsonProcessingException {
-            return universityService.getAllStudents(teacherId, page, size, requestedSort);
+        @RequestParam(defaultValue = "id,desc") String[] requestedSort) {
+            ResponseEntity<Map<String, Object>> response = universityService.getAllStudents(teacherId, page, size, requestedSort);
+            model.addAttribute("students", response.getBody().get("students"));
+            model.addAttribute("currentPage", response.getBody().get("currentPage"));
+            model.addAttribute("totalItems", response.getBody().get("totalItems"));
+            model.addAttribute("totalPages", response.getBody().get("totalPages"));
+            return "students";
     }
 
     @GetMapping("/teacher/{firstName}/{lastName}")

@@ -43,8 +43,7 @@ public class UniversityService {
         return orders;
     }
 
-    public ResponseEntity<String> getAllStudents(Long teacherId, int page, int size, String[] requestedSort)
-        throws JsonProcessingException {
+    public ResponseEntity<Map<String, Object>> getAllStudents(Long teacherId, int page, int size, String[] requestedSort) {
             Pageable pagingSort = PageRequest.of(page, size, Sort.by(getOrder(requestedSort)));
             Page<Student> singlePage = studentRepository.findAll(pagingSort);
 
@@ -60,7 +59,7 @@ public class UniversityService {
             response.put("totalItems", singlePage.getTotalElements());
             response.put("totalPages", singlePage.getTotalPages());
 
-            return ResponseEntity.ok(objectMapper.writeValueAsString(response));
+            return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<String> getAllTeachers(Long studentId, int page, int size, String[] requestedSort)

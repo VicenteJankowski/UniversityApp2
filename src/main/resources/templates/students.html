@@ -9,7 +9,8 @@
   <table>
     <tr th:each="student : ${students}">
       <td th:text="${student.id}"></td>
-      <td th:text="${student.name}"></td>
+      <td th:text="${student.firstName}"></td>
+      <td th:text="${student.lastName}"></td>
     </tr>
   </table>
 </body>
