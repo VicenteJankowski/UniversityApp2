@@ -51,6 +51,7 @@ public class UniversityController {
             model.addAttribute("currentPage", response.getBody().get("currentPage"));
             model.addAttribute("totalItems", response.getBody().get("totalItems"));
             model.addAttribute("totalPages", response.getBody().get("totalPages"));
+
             return "students";
     }
 
